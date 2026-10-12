@@ -1758,6 +1758,8 @@
     "gate_step3_hint": "请输入上方显示的完整标识以启用安装。"
   },
   "plugin_resource": {
+    "compact_confirm_title": "保存 Claude Compact 配置？",
+    "compact_confirm_message": "将整份替换 Claude Compact 配置，包括预算与历史保留覆盖项。是否继续？",
     "page_count": "{{count}} 个页面",
     "load_failed": "加载插件页面失败",
     "unavailable": "插件页面不可用",

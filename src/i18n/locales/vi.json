@@ -1716,6 +1716,8 @@
     "gate_step3_hint": "Nhập chính xác mã định danh hiển thị ở trên để cho phép cài đặt."
   },
   "plugin_resource": {
+    "compact_confirm_title": "Lưu cấu hình Claude Compact?",
+    "compact_confirm_message": "Thao tác này thay thế toàn bộ cấu hình Claude Compact, bao gồm các giá trị ghi đè về ngân sách và lưu giữ lịch sử. Tiếp tục?",
     "page_count": "{{count}} trang",
     "load_failed": "Không thể tải trang plugin",
     "unavailable": "Trang plugin không khả dụng",

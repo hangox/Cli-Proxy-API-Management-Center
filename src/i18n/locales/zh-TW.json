@@ -1784,6 +1784,8 @@
     "gate_step3_hint": "請輸入上方顯示的完整識別碼以啟用安裝。"
   },
   "plugin_resource": {
+    "compact_confirm_title": "儲存 Claude Compact 設定？",
+    "compact_confirm_message": "將完整取代 Claude Compact 設定，包括預算與歷史保留覆寫項目。是否繼續？",
     "page_count": "{{count}} 個頁面",
     "load_failed": "載入插件頁面失敗",
     "unavailable": "插件頁面不可用",

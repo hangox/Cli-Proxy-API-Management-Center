@@ -25,6 +25,42 @@ describe('v8 management transport', () => {
     await apiClient.put('/config/observability/logs/debug', false, { adapter });
   });
 
+  test('会话代际变化后拒绝排队中的代发请求，不能绑定到新账号', async () => {
+    apiClient.setConfig({ apiBase: 'https://proxy.invalid', managementKey: 'fixture-old' });
+    const revision = apiClient.getConnectionRevision();
+    let calls = 0;
+    const adapter: AxiosAdapter = async (config) => {
+      calls += 1;
+      return { data: {}, status: 200, statusText: 'OK', headers: {}, config };
+    };
+    const request = apiClient.put(
+      '/config/plugins/configs/claude-compact',
+      {},
+      {
+        adapter,
+        expectedConnectionRevision: revision,
+      }
+    );
+    apiClient.setConfig({ apiBase: 'https://proxy.invalid', managementKey: 'fixture-new' });
+    await expect(request).rejects.toThrow('connection_changed');
+    expect(calls).toBe(0);
+  });
+
+  test('本源 custom 固定URL复用父Bearer且合法代际真正发出请求', async () => {
+    apiClient.setConfig({ apiBase: 'https://proxy.invalid', managementKey: 'fixture-only' });
+    const adapter: AxiosAdapter = async (config) => {
+      expect(config.url).toBe('https://proxy.invalid/v0/management/claude-compact/status');
+      expect(config.headers.Authorization).toBe('Bearer fixture-only');
+      return { data: { ready: true }, status: 200, statusText: 'OK', headers: {}, config };
+    };
+    expect(
+      await apiClient.get('https://proxy.invalid/v0/management/claude-compact/status', {
+        adapter,
+        expectedConnectionRevision: apiClient.getConnectionRevision(),
+      })
+    ).toEqual({ ready: true });
+  });
+
   test('retains backend version and plugin support events', async () => {
     const events: Event[] = [];
     Object.defineProperty(globalThis, 'window', {

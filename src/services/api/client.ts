@@ -16,6 +16,10 @@ import {
 import { computeApiUrl } from '@/utils/connection';
 import { parseApiErrorResponse } from './apiError';
 
+export interface ConnectionScopedRequestConfig extends AxiosRequestConfig {
+  expectedConnectionRevision?: number;
+}
+
 class ApiClient {
   private instance: AxiosInstance;
   private apiBase: string = '';
@@ -114,6 +118,12 @@ class ApiClient {
     // 请求拦截器
     this.instance.interceptors.request.use(
       (config) => {
+        // 代发请求在实际绑定认证信息前再次检查会话代际，避免排队期间切换账号。
+        const expectedRevision = (config as ConnectionScopedRequestConfig)
+          .expectedConnectionRevision;
+        if (expectedRevision !== undefined && expectedRevision !== this.connectionRevision) {
+          throw new Error('connection_changed');
+        }
         // 设置 baseURL
         config.baseURL = this.apiBase;
 
@@ -196,7 +206,7 @@ class ApiClient {
   /**
    * GET 请求
    */
-  async get<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<T> {
+  async get<T = unknown>(url: string, config?: ConnectionScopedRequestConfig): Promise<T> {
     const response = await this.instance.get<T>(url, config);
     return response.data;
   }
@@ -212,7 +222,11 @@ class ApiClient {
   /**
    * PUT 请求
    */
-  async put<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
+  async put<T = unknown>(
+    url: string,
+    data?: unknown,
+    config?: ConnectionScopedRequestConfig
+  ): Promise<T> {
     const response = await this.instance.put<T>(url, data, config);
     return response.data;
   }

@@ -1,4 +1,8 @@
 {
+  "plugin_resource": {
+    "compact_confirm_title": "Сохранить конфигурацию Claude Compact?",
+    "compact_confirm_message": "Конфигурация Claude Compact будет заменена целиком, включая настройки бюджета и хранения истории. Продолжить?"
+  },
   "common": {
     "login": "Войти",
     "logout": "Выйти",

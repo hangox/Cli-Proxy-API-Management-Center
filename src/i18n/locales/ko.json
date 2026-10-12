@@ -1759,6 +1759,8 @@
     "gate_step3_hint": "설치를 활성화하려면 위에 표시된 식별자를 정확히 입력하세요."
   },
   "plugin_resource": {
+    "compact_confirm_title": "Claude Compact 설정을 저장할까요?",
+    "compact_confirm_message": "예산 및 기록 보관 재정의 항목을 포함한 Claude Compact 설정 전체를 교체합니다. 계속할까요?",
     "page_count": "페이지 {{count}}개",
     "load_failed": "플러그인 페이지를 불러오지 못했습니다",
     "unavailable": "플러그인 페이지를 사용할 수 없습니다",
