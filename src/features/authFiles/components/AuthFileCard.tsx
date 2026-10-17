@@ -32,9 +32,17 @@ import {
 import { deriveAuthFileIdentity } from '@/features/authFiles/identity';
 import { resolveAuthFileQuotaType } from '@/features/authFiles/logic';
 import type { AuthFileStatusBarData } from '@/features/authFiles/hooks/useAuthFilesStatusBarCache';
+import type { PluginQuotaCardRequestSummary } from '@/features/quota/providers/plugin/PluginQuotaBody';
 import { AuthFileQuotaSection } from '@/features/authFiles/components/AuthFileQuotaSection';
 import { AuthFileCooldownSection } from './AuthFileCooldownSection';
 import styles from './AuthFileCard.module.scss';
+
+const readRequestCount = (value: unknown): number | null => {
+  if (typeof value !== 'number' && typeof value !== 'string') return null;
+  if (typeof value === 'string' && value.trim() === '') return null;
+  const count = Number(value);
+  return Number.isFinite(count) && count >= 0 ? count : null;
+};
 
 export type AuthFileCardProps = {
   file: AuthFileItem;
@@ -104,6 +112,19 @@ export function AuthFileCard(props: AuthFileCardProps) {
   const statusData =
     (authIndexKey && statusBarCache.get(authIndexKey)) ||
     statusBarDataFromRecentRequests(file.recentRequests ?? []);
+  const rawSuccessCount = readRequestCount(file.success);
+  const rawFailureCount = readRequestCount(file.failed);
+  const requestSummary: PluginQuotaCardRequestSummary | undefined =
+    showQuotaLayout && quotaType === 'plugin'
+      ? {
+          counts:
+            rawSuccessCount !== null && rawFailureCount !== null
+              ? { success: rawSuccessCount, failure: rawFailureCount }
+              : null,
+          statusData,
+          statusBarStyles: styles,
+        }
+      : undefined;
 
   const rawStatusMessage = getAuthFileStatusMessage(file);
   const hasStatusWarning = hasAuthFileStatusWarning(file);
@@ -195,26 +216,28 @@ export function AuthFileCard(props: AuthFileCardProps) {
         onReset={authIndexKey ? () => onCooldownReset(file) : undefined}
       />
 
-      <div className={styles.health}>
-        <div className={styles.healthHead}>
-          <span className={styles.healthLabel}>{t('auth_files.card_requests')}</span>
-          <span className={styles.healthCounts}>
-            <span
-              className={`${styles.countOk} ${successCount > 0 ? styles.countLive : ''}`}
-              title={t('stats.success')}
-            >
-              {t('stats.success')} {successCount}
+      {!requestSummary && (
+        <div className={styles.health}>
+          <div className={styles.healthHead}>
+            <span className={styles.healthLabel}>{t('auth_files.card_requests')}</span>
+            <span className={styles.healthCounts}>
+              <span
+                className={`${styles.countOk} ${successCount > 0 ? styles.countLive : ''}`}
+                title={t('stats.success')}
+              >
+                {t('stats.success')} {successCount}
+              </span>
+              <span
+                className={`${styles.countFail} ${failureCount > 0 ? styles.countLive : ''}`}
+                title={t('stats.failure')}
+              >
+                {t('stats.failure')} {failureCount}
+              </span>
             </span>
-            <span
-              className={`${styles.countFail} ${failureCount > 0 ? styles.countLive : ''}`}
-              title={t('stats.failure')}
-            >
-              {t('stats.failure')} {failureCount}
-            </span>
-          </span>
+          </div>
+          <ProviderStatusBar statusData={statusData} styles={styles} />
         </div>
-        <ProviderStatusBar statusData={statusData} styles={styles} />
-      </div>
+      )}
 
       <div className={styles.metaRow}>
         <span title={t('auth_files.file_size')}>{file.size ? formatFileSize(file.size) : '-'}</span>
@@ -247,7 +270,12 @@ export function AuthFileCard(props: AuthFileCardProps) {
       </div>
 
       {showQuotaLayout && quotaType && (
-        <AuthFileQuotaSection file={file} quotaType={quotaType} disableControls={disableControls} />
+        <AuthFileQuotaSection
+          file={file}
+          quotaType={quotaType}
+          disableControls={disableControls}
+          requestSummary={requestSummary}
+        />
       )}
 
       <footer className={styles.actions}>

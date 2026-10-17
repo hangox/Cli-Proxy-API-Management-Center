@@ -6,8 +6,13 @@ import {
   useNotificationStore,
   useQuotaStore,
 } from '@/stores';
-import type { AuthFileItem } from '@/types';
+import type { AuthFileItem, PluginQuotaState } from '@/types';
 import { getStatusFromError, resolveQuotaErrorMessage } from '@/utils/quota';
+import {
+  PluginQuotaBody,
+  PluginQuotaRequestMetric,
+  type PluginQuotaCardRequestSummary,
+} from '@/features/quota/providers/plugin/PluginQuotaBody';
 import { getQuotaCacheKey } from '@/utils/quota/identity';
 import { isRuntimeOnlyAuthFile, type QuotaProviderType } from '@/features/authFiles/constants';
 import { Button } from '@/components/ui/Button';
@@ -31,10 +36,11 @@ export type AuthFileQuotaSectionProps = {
   file: AuthFileItem;
   quotaType: QuotaProviderType;
   disableControls: boolean;
+  requestSummary?: PluginQuotaCardRequestSummary;
 };
 
 export function AuthFileQuotaSection(props: AuthFileQuotaSectionProps) {
-  const { file, quotaType, disableControls } = props;
+  const { file, quotaType, disableControls, requestSummary } = props;
   const { t } = useTranslation();
   const showNotification = useNotificationStore((state) => state.showNotification);
   const showConfirmation = useNotificationStore((state) => state.showConfirmation);
@@ -158,6 +164,7 @@ export function AuthFileQuotaSection(props: AuthFileQuotaSectionProps) {
   ]);
 
   const quotaStatus = quota?.status ?? 'idle';
+  const showPluginCardPresentation = quotaType === 'plugin' && requestSummary !== undefined;
   const canRefreshQuota = !disableControls && !file.disabled && !resettingQuota;
   const canUseResetQuota = canRefreshQuota && quotaStatus !== 'loading';
   const showResetQuotaAction = quota !== undefined && Boolean(adapter.canResetQuota?.(quota));
@@ -204,9 +211,23 @@ export function AuthFileQuotaSection(props: AuthFileQuotaSectionProps) {
           })}
         </div>
       ) : quota ? (
-        <adapter.Body quota={quota} classes={compactQuotaClasses} />
+        quotaType === 'plugin' && requestSummary ? (
+          <PluginQuotaBody
+            quota={quota as PluginQuotaState}
+            classes={compactQuotaClasses}
+            cardStyles={styles}
+            requestSummary={requestSummary}
+          />
+        ) : (
+          <adapter.Body quota={quota} classes={compactQuotaClasses} />
+        )
       ) : (
         <div className={styles.quotaMessage}>{t(`${adapter.i18nPrefix}.idle`)}</div>
+      )}
+      {showPluginCardPresentation && !(quotaStatus === 'success' && quota) && (
+        <dl className={styles.pluginQuotaMetrics}>
+          <PluginQuotaRequestMetric requestSummary={requestSummary} cardStyles={styles} />
+        </dl>
       )}
       {quotaStatus !== 'idle' && (resetQuotaAction || quotaType === 'devin') && (
         <div className={styles.quotaCardActions}>

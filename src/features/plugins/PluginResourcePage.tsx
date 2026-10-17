@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -12,6 +12,7 @@ import {
   PLUGIN_RESOURCES_REFRESH_EVENT,
   resolvePluginAssetURL,
 } from './pluginResources';
+import { useCompactBroker } from './useCompactBroker';
 import styles from './PluginResourcePage.module.scss';
 
 const hasStatus = (error: unknown, status: number) => isRecord(error) && error.status === status;
@@ -86,6 +87,13 @@ export function PluginResourcePage() {
   }, [data?.plugins, menuIndex, pluginID]);
 
   const iframeSrc = resource ? resolvePluginAssetURL(resource.menu.path, apiBase) : '';
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  useCompactBroker(iframeRef, {
+    active: connected && !loading && !error && Boolean(resource),
+    pluginID: resource?.pluginID ?? '',
+    iframeSrc,
+    apiBase,
+  });
 
   return (
     <div className={styles.page}>
@@ -113,6 +121,7 @@ export function PluginResourcePage() {
         </div>
       ) : (
         <iframe
+          ref={iframeRef}
           className={styles.frame}
           src={iframeSrc}
           title={resource.label}

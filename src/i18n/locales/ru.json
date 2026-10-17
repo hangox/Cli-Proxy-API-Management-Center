@@ -602,7 +602,28 @@
     "missing_auth_index": "В файле авторизации отсутствует auth_index",
     "empty_data": "Нет доступных данных о квоте",
     "plan_label": "План",
-    "remaining_percent": "Осталось {{percent}}%"
+    "remaining_percent": "Осталось {{percent}}%",
+    "remaining_this_month": "Остаток на этот месяц",
+    "used_this_month": "Использовано за месяц",
+    "today_cost": "Расходы сегодня",
+    "week_cost": "За последние 7 дней",
+    "last_month_cost": "Расходы за прошлый месяц",
+    "costly_usage": "Расходы на премиум-модели",
+    "active_models": "Модели с запросами",
+    "used_percent_label": "Использовано за месяц",
+    "reset_day": "День сброса",
+    "details": "Квота и данные аккаунта",
+    "request_success_rate": "Накопительная успешность",
+    "used_percent": "Использовано {{percent}}",
+    "over_limit": "Квота превышена",
+    "progress_unavailable": "Невозможно рассчитать процент использования при нулевом месячном лимите.",
+    "cost_partial": "Данные о расходах неполные.",
+    "reset_at": "Сброс",
+    "unit_day": "дней",
+    "unit_count": "ед.",
+    "request_count_scope": "Показатель рассчитан по накопительным счётчикам успешных/неуспешных запросов хоста; время начала неизвестно.",
+    "recent_request_window": "Активность за последние ~200 мин",
+    "recent_request_window_detail": "На основе 20 интервалов по 10 минут (около 200 минут)."
   },
   "kimi_quota": {
     "title": "Квота Kimi",
@@ -1675,6 +1696,10 @@
     "expected_array": "Введите JSON-массив",
     "expected_object": "Введите JSON-объект",
     "invalid_enum": "Выберите одно из объявленных значений enum"
+  },
+  "plugin_resource": {
+    "compact_confirm_title": "Сохранить конфигурацию Claude Compact?",
+    "compact_confirm_message": "Конфигурация Claude Compact будет заменена целиком, включая настройки бюджета и хранения истории. Продолжить?"
   },
   "plugin_store": {
     "title": "Магазин плагинов",

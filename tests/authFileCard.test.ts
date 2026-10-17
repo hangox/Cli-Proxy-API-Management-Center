@@ -79,4 +79,11 @@ describe('auth file card presentation contract', () => {
     expect(source).toContain('showManualRefreshButton');
     expect(source).toContain('file.disabled ||');
   });
+
+  test('routes generic plugin request data into quota summary without zero-filling unknowns', () => {
+    expect(source).toContain('const readRequestCount =');
+    expect(source).toContain('rawSuccessCount !== null && rawFailureCount !== null');
+    expect(source).toContain('requestSummary={requestSummary}');
+    expect(source).toContain('{!requestSummary && (');
+  });
 });

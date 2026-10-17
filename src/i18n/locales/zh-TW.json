@@ -598,7 +598,28 @@
     "missing_auth_index": "驗證檔案缺少 auth_index",
     "empty_data": "暫無可用配額資料",
     "plan_label": "方案",
-    "remaining_percent": "剩餘 {{percent}}%"
+    "remaining_percent": "剩餘 {{percent}}%",
+    "remaining_this_month": "本月剩餘",
+    "used_this_month": "本月已用",
+    "today_cost": "今日費用",
+    "week_cost": "近 7 日費用",
+    "last_month_cost": "上月費用",
+    "costly_usage": "高價模型費用",
+    "active_models": "有請求的模型",
+    "used_percent_label": "本月已用比例",
+    "reset_day": "重置日",
+    "details": "額度與帳戶明細",
+    "request_success_rate": "累計成功率",
+    "used_percent": "已用 {{percent}}",
+    "over_limit": "已超出額度",
+    "progress_unavailable": "月額度為 0，無法計算已用比例。",
+    "cost_partial": "費用統計不完整。",
+    "reset_at": "重置時間",
+    "unit_day": "天",
+    "unit_count": "項",
+    "request_count_scope": "成功率依主機累計成功/失敗計數計算；統計起點未提供。",
+    "recent_request_window": "近 200 分鐘請求活動",
+    "recent_request_window_detail": "依據 20 個 10 分鐘請求區間（約 200 分鐘）。"
   },
   "kimi_quota": {
     "title": "Kimi 配額",
@@ -1804,7 +1825,9 @@
     "not_found": "找不到插件頁面",
     "not_found_desc": "目前後端插件清單未宣告此插件頁面。",
     "empty_src": "插件頁面位址為空",
-    "empty_src_desc": "此插件選單未提供可嵌入的頁面位址。"
+    "empty_src_desc": "此插件選單未提供可嵌入的頁面位址。",
+    "compact_confirm_title": "儲存 Claude Compact 設定？",
+    "compact_confirm_message": "將完整取代 Claude Compact 設定，包括預算與歷史保留覆寫項目。是否繼續？"
   },
   "system_info": {
     "title": "管理中心資訊",

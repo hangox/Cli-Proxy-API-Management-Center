@@ -480,7 +480,28 @@
     "missing_auth_index": "File xác thực thiếu auth_index",
     "empty_data": "Chưa có dữ liệu quota",
     "plan_label": "Gói",
-    "remaining_percent": "Còn lại {{percent}}%"
+    "remaining_percent": "Còn lại {{percent}}%",
+    "remaining_this_month": "Còn lại trong tháng này",
+    "used_this_month": "Đã dùng trong tháng này",
+    "today_cost": "Chi phí hôm nay",
+    "week_cost": "7 ngày qua",
+    "last_month_cost": "Chi phí tháng trước",
+    "costly_usage": "Chi phí mô hình cao cấp",
+    "active_models": "Mô hình có yêu cầu",
+    "used_percent_label": "Tỷ lệ đã dùng trong tháng",
+    "reset_day": "Ngày đặt lại",
+    "details": "Quota và chi tiết tài khoản",
+    "request_success_rate": "Tỷ lệ thành công tích lũy",
+    "used_percent": "Đã dùng {{percent}}",
+    "over_limit": "Đã vượt quota",
+    "progress_unavailable": "Không thể tính tỷ lệ sử dụng khi giới hạn tháng bằng 0.",
+    "cost_partial": "Dữ liệu chi phí chưa đầy đủ.",
+    "reset_at": "Đặt lại",
+    "unit_day": "ngày",
+    "unit_count": "mục",
+    "request_count_scope": "Tỷ lệ tính từ bộ đếm thành công/thất bại tích lũy của máy chủ; không có thời điểm bắt đầu.",
+    "recent_request_window": "Hoạt động yêu cầu gần đây · ~200 phút",
+    "recent_request_window_detail": "Dựa trên 20 khoảng 10 phút (khoảng 200 phút)."
   },
   "claude_quota": {
     "title": "Quota Claude",
@@ -1734,7 +1755,9 @@
     "not_found": "Không tìm thấy trang plugin",
     "not_found_desc": "Trang plugin này không được khai báo trong danh sách plugin backend hiện tại.",
     "empty_src": "URL trang plugin trống",
-    "empty_src_desc": "Menu plugin này không cung cấp URL trang nhúng được."
+    "empty_src_desc": "Menu plugin này không cung cấp URL trang nhúng được.",
+    "compact_confirm_title": "Lưu cấu hình Claude Compact?",
+    "compact_confirm_message": "Thao tác này thay thế toàn bộ cấu hình Claude Compact, bao gồm các giá trị ghi đè về ngân sách và lưu giữ lịch sử. Tiếp tục?"
   },
   "system_info": {
     "title": "Thông tin Trung tâm Quản lý",

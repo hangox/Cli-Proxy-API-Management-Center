@@ -480,7 +480,28 @@
     "missing_auth_index": "Auth file missing auth_index",
     "empty_data": "No quota data available",
     "plan_label": "Plan",
-    "remaining_percent": "{{percent}}% remaining"
+    "remaining_percent": "{{percent}}% remaining",
+    "remaining_this_month": "Remaining this month",
+    "used_this_month": "Used this month",
+    "today_cost": "Today’s cost",
+    "week_cost": "Last 7 days",
+    "last_month_cost": "Last month’s cost",
+    "costly_usage": "Premium model cost",
+    "active_models": "Models with requests",
+    "used_percent_label": "Usage this month",
+    "reset_day": "Reset day",
+    "details": "Quota & account details",
+    "request_success_rate": "Cumulative success rate",
+    "used_percent": "Used {{percent}}",
+    "over_limit": "Over quota",
+    "progress_unavailable": "Usage percentage is unavailable when the monthly limit is zero.",
+    "cost_partial": "Cost data is incomplete.",
+    "reset_at": "Resets",
+    "unit_day": "days",
+    "unit_count": "items",
+    "request_count_scope": "Rate uses cumulative host success/failure counters; start time unavailable.",
+    "recent_request_window": "Recent activity · ~200 min",
+    "recent_request_window_detail": "Based on 20 buckets of 10 minutes each (~200 minutes)."
   },
   "claude_quota": {
     "title": "Claude Quota",
@@ -1777,7 +1798,9 @@
     "not_found": "Plugin page not found",
     "not_found_desc": "This plugin page is not declared by the current backend plugin list.",
     "empty_src": "Plugin page URL is empty",
-    "empty_src_desc": "This plugin menu does not provide an embeddable page URL."
+    "empty_src_desc": "This plugin menu does not provide an embeddable page URL.",
+    "compact_confirm_title": "Save Claude Compact configuration?",
+    "compact_confirm_message": "This replaces the Claude Compact configuration, including budget and retention overrides. Continue?"
   },
   "system_info": {
     "title": "Management Center Info",

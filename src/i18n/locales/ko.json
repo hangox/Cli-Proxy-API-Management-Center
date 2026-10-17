@@ -480,7 +480,28 @@
     "missing_auth_index": "인증 파일에 auth_index가 없습니다",
     "empty_data": "사용 가능한 할당량 데이터가 없습니다",
     "plan_label": "플랜",
-    "remaining_percent": "{{percent}}% 남음"
+    "remaining_percent": "{{percent}}% 남음",
+    "remaining_this_month": "이번 달 남은 할당량",
+    "used_this_month": "이번 달 사용량",
+    "today_cost": "오늘 비용",
+    "week_cost": "최근 7일",
+    "last_month_cost": "지난달 비용",
+    "costly_usage": "프리미엄 모델 비용",
+    "active_models": "요청이 있었던 모델",
+    "used_percent_label": "이번 달 사용 비율",
+    "reset_day": "초기화 일자",
+    "details": "할당량 및 계정 세부 정보",
+    "request_success_rate": "누적 성공률",
+    "used_percent": "{{percent}} 사용됨",
+    "over_limit": "할당량 초과",
+    "progress_unavailable": "월간 한도가 0이면 사용 비율을 계산할 수 없습니다.",
+    "cost_partial": "비용 데이터가 불완전합니다.",
+    "reset_at": "초기화",
+    "unit_day": "일",
+    "unit_count": "개",
+    "request_count_scope": "호스트 누적 성공/실패 카운터 기준이며 시작 시점은 제공되지 않습니다.",
+    "recent_request_window": "최근 약 200분 요청 활동",
+    "recent_request_window_detail": "10분 버킷 20개(약 200분)를 기준으로 합니다."
   },
   "claude_quota": {
     "title": "Claude 할당량",
@@ -1777,7 +1798,9 @@
     "not_found": "플러그인 페이지를 찾을 수 없습니다",
     "not_found_desc": "이 플러그인 페이지는 현재 백엔드 플러그인 목록에 선언되어 있지 않습니다.",
     "empty_src": "플러그인 페이지 URL이 비어 있습니다",
-    "empty_src_desc": "이 플러그인 메뉴는 포함 가능한 페이지 URL을 제공하지 않습니다."
+    "empty_src_desc": "이 플러그인 메뉴는 포함 가능한 페이지 URL을 제공하지 않습니다.",
+    "compact_confirm_title": "Claude Compact 설정을 저장할까요?",
+    "compact_confirm_message": "예산 및 기록 보관 재정의 항목을 포함한 Claude Compact 설정 전체를 교체합니다. 계속할까요?"
   },
   "system_info": {
     "title": "관리 센터 정보",

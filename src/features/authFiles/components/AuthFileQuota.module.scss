@@ -14,6 +14,7 @@ $quota-font-size: 11.5px;
 /* ---------- 宿主 ---------- */
 
 .quotaSection {
+  container-type: inline-size;
   display: flex;
   flex-direction: column;
   gap: 9px;
@@ -327,6 +328,161 @@ button.quotaMessageAction {
   font-weight: 500;
   color: var(--danger-color);
   overflow-wrap: anywhere;
+}
+
+.pluginQuotaHero {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.pluginQuotaHeroHead,
+.pluginQuotaBreakdown,
+.pluginQuotaProgressLabel {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.pluginQuotaHeroHead {
+  align-items: flex-end;
+}
+.pluginQuotaHeroLabel {
+  color: var(--text-tertiary);
+  font-size: 12px;
+}
+.pluginQuotaHeroValue {
+  margin-top: 3px;
+  color: var(--text-primary);
+  font-size: 28px;
+  font-weight: 650;
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.pluginQuotaOverLimit {
+  flex-shrink: 0;
+  color: var(--danger-color);
+  font-size: 11px;
+  font-weight: 650;
+}
+.pluginQuotaBreakdown {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  color: var(--text-secondary);
+  font-size: $quota-font-size;
+  font-variant-numeric: tabular-nums;
+}
+.pluginQuotaProgressLabel {
+  color: var(--text-tertiary);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+}
+.pluginQuotaHero progress {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 7px;
+  border: 0;
+  border-radius: $radius-full;
+  background: color-mix(in srgb, var(--text-primary) 8%, transparent);
+  overflow: hidden;
+  &::-webkit-progress-value,
+  &::-moz-progress-bar {
+    border-radius: $radius-full;
+    background: var(--primary-color);
+  }
+  &::-webkit-progress-bar {
+    border-radius: $radius-full;
+    background: color-mix(in srgb, var(--text-primary) 8%, transparent);
+  }
+}
+.pluginQuotaMetrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding-top: 10px;
+  border-top: 1px solid color-mix(in srgb, var(--border-color) 75%, transparent);
+  > div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+  dt {
+    color: var(--text-tertiary);
+    font-size: 11px;
+    overflow-wrap: anywhere;
+  }
+  dd {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.25;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+}
+.pluginQuotaMetricNote {
+  color: var(--text-tertiary);
+  font-size: 11px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.pluginQuotaRequestBar {
+  margin-top: 2px;
+}
+.pluginQuotaRequestRateHidden {
+  display: none;
+}
+.pluginQuotaDetails {
+  border-top: 1px solid color-mix(in srgb, var(--border-color) 75%, transparent);
+  padding-top: 8px;
+}
+.pluginQuotaDetails summary {
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+.pluginQuotaDetails dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 145px), 1fr));
+  gap: 8px 14px;
+  margin: 10px 0 0;
+}
+.pluginQuotaDetails dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+  font-size: 11px;
+}
+.pluginQuotaDetails dt {
+  color: var(--text-tertiary);
+  overflow-wrap: anywhere;
+}
+.pluginQuotaDetails dd {
+  flex-shrink: 0;
+  margin: 0;
+  color: var(--text-secondary);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+@container (max-width: 380px) {
+  .pluginQuotaHeroValue {
+    font-size: 25px;
+  }
+  .pluginQuotaMetrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pluginQuotaRequestMetric {
+    grid-column: 1 / -1;
+  }
 }
 
 @include mobile {
