@@ -184,7 +184,9 @@ function PluginQuotaCard({
   const remainingValue = remaining?.value ?? (limit && used ? limit.value - used.value : null);
   const hasHero = Boolean((limit || monthlyBucket) && (remaining || (limit && used)));
   const hasProgress = Boolean(limit && used && limit.value > 0);
-  const percentUsed = hasProgress ? (used!.value / limit!.value) * 100 : null;
+  const percentRemaining = hasProgress
+    ? Math.min(100, Math.max(0, (remainingValue! / limit!.value) * 100))
+    : null;
   const overLimit =
     Boolean(remainingValue !== null && remainingValue < 0) ||
     Boolean(limit && used && used.value > limit.value);
@@ -211,11 +213,11 @@ function PluginQuotaCard({
     quota.subscription?.tierName || quota.subscription?.plan || quota.subscription?.tierId;
   const partialCost = (metric('cost_partial')?.value ?? 0) > 0;
   const resetAt = formatReset(monthlyBucket?.resetTime, i18n.language);
-  const usedLabel =
-    percentUsed === null
+  const remainingLabel =
+    percentRemaining === null
       ? ''
-      : t('plugin_quota.used_percent', {
-          percent: `${formatPercent(percentUsed, i18n.language)}%`,
+      : t('plugin_quota.remaining_percent', {
+          percent: formatPercent(percentRemaining, i18n.language),
         });
   const amount = remaining ?? limit ?? used;
 
@@ -261,17 +263,17 @@ function PluginQuotaCard({
               )}
             </div>
           )}
-          {percentUsed !== null && (
+          {percentRemaining !== null && (
             <>
               <div className={cardStyles.pluginQuotaProgressLabel}>
-                <span>{t('plugin_quota.used_this_month')}</span>
-                <span>{usedLabel}</span>
+                <span>{t('plugin_quota.remaining_this_month')}</span>
+                <span>{remainingLabel}</span>
               </div>
               <progress
-                value={Math.min(100, Math.max(0, percentUsed))}
+                value={percentRemaining}
                 max={100}
-                aria-label={usedLabel}
-                aria-valuetext={usedLabel}
+                aria-label={remainingLabel}
+                aria-valuetext={remainingLabel}
               />
             </>
           )}

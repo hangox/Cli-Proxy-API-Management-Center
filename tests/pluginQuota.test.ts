@@ -316,7 +316,7 @@ describe('generic plugin quota', () => {
 
     expect(markup).toContain(i18n.t('plugin_quota.remaining_this_month'));
     expect(markup).toContain(i18n.t('plugin_quota.today_cost'));
-    expect(markup).toContain('78.3%');
+    expect(markup).toContain('21.7%');
     expect(markup).toContain('211');
     expect(markup).toContain('Provider extension');
     expect(markup).toContain(i18n.t('plugin_quota.active_models'));
@@ -369,14 +369,49 @@ describe('generic plugin quota', () => {
       { ...requestSummary, counts: null }
     );
     expect(over).toContain(i18n.t('plugin_quota.over_limit'));
-    expect(over).toContain('120%');
-    expect(over).toContain('value="100"');
-    expect(over).not.toContain('100%');
+    expect(over).toContain('120.00');
+    expect(over).toContain('value="0"');
+    expect(over).toContain(i18n.t('plugin_quota.remaining_percent', { percent: '0' }));
+    expect(over).not.toContain('120%');
+  });
+
+  test('月额度进度条、中英文和无障碍读数均表示剩余，已用金额继续展示', async () => {
+    const previousLanguage = i18n.language;
+    try {
+      for (const locale of ['zh-CN', 'en']) {
+        await i18n.changeLanguage(locale);
+        for (const [limit, used, remaining, percent, display] of [
+          [3000, 2351.93, 648.07, 21.602333333333334, '21.6'],
+          [100, 0, 100, 100, '100'],
+          [100, 100, 0, 0, '0'],
+          [100, 120, -20, 0, '0'],
+        ] as const) {
+          const markup = renderCardQuota(
+            makeCardQuota([
+              makeMetric('monthly_quota', 'Monthly Quota', limit),
+              makeMetric('usage_cost', 'Used This Month', used),
+              makeMetric('remaining', 'Remaining', remaining),
+            ])
+          );
+          const progress = markup.match(/<progress[^>]*>/)?.[0] ?? '';
+          const value = Number(progress.match(/value="([^"]+)"/)?.[1]);
+          const label = i18n.t('plugin_quota.remaining_percent', { percent: display });
+          expect(value).toBeCloseTo(percent, 8);
+          expect(progress).toContain(`aria-label="${label}"`);
+          expect(progress).toContain(`aria-valuetext="${label}"`);
+          expect(markup).toContain(`<span>${i18n.t('plugin_quota.remaining_this_month')}</span>`);
+          expect(markup).toContain(i18n.t('plugin_quota.used_this_month'));
+        }
+      }
+    } finally {
+      await i18n.changeLanguage(previousLanguage);
+    }
   });
 
   test('provides every new plugin-card label in all configured locales', () => {
     const keys = [
       'remaining_this_month',
+      'remaining_percent',
       'used_this_month',
       'today_cost',
       'week_cost',
