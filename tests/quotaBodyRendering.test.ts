@@ -14,10 +14,11 @@ import i18n from '@/i18n';
 import { CodexQuotaBody } from '@/features/quota/providers/codex/CodexQuotaBody';
 import { ClaudeQuotaBody } from '@/features/quota/providers/claude/ClaudeQuotaBody';
 import { KimiQuotaBody } from '@/features/quota/providers/kimi/KimiQuotaBody';
+import { AntigravityQuotaBody } from '@/features/quota/providers/antigravity/AntigravityQuotaBody';
 import { QUOTA_CLASS_KEYS, bindQuotaClasses } from '@/features/quota/types';
 import { formatInstantShort } from '@/utils/quota';
 import { DAY_MS, HOUR_MS } from '@/utils/time/durations';
-import type { ClaudeQuotaState, CodexQuotaState, KimiQuotaState } from '@/types';
+import type { AntigravityQuotaState, ClaudeQuotaState, CodexQuotaState, KimiQuotaState } from '@/types';
 
 const classes = bindQuotaClasses(
   Object.fromEntries(QUOTA_CLASS_KEYS.map((key) => [key, key])),
@@ -258,3 +259,98 @@ describe('ClaudeQuotaBody', () => {
     expect(markup).toMatch(/4 days/);
   });
 });
+
+describe('AntigravityQuotaBody', () => {
+  const quota: AntigravityQuotaState = {
+    status: 'success',
+    subscription: {
+      plan: 'pro',
+      tierName: null,
+      tierId: null,
+    },
+    groups: [
+      {
+        id: 'claude-and-gpt-models',
+        label: 'Claude and GPT models',
+        buckets: [
+          {
+            id: '3p-5h',
+            label: 'Five Hour Limit Remaining',
+            window: '5h',
+            remainingFraction: 1,
+            resetTime: new Date(now + 2 * HOUR_MS).toISOString(),
+          },
+          {
+            id: '3p-weekly',
+            label: 'Weekly Limit Remaining',
+            window: 'weekly',
+            remainingFraction: 1,
+            resetTime: new Date(now + 5 * DAY_MS).toISOString(),
+          },
+        ],
+      },
+    ],
+  };
+
+  test('renders localized bucket labels and official available state for unconsumed quota', async () => {
+    await i18n.changeLanguage('zh-CN');
+    try {
+      const markup = renderToStaticMarkup(createElement(AntigravityQuotaBody, { quota, classes }));
+      expect(markup).toContain('5 小时限额');
+      expect(markup).toContain('周限额');
+      expect(markup).toContain('额度可用');
+      expect(markup).not.toContain('Five Hour Limit Remaining');
+      expect(markup).not.toContain('Weekly Limit Remaining');
+    } finally {
+      await i18n.changeLanguage('en');
+    }
+  });
+
+  test('renders real numeric percentage when quota is partially consumed', async () => {
+    await i18n.changeLanguage('zh-CN');
+    try {
+      const consumedQuota: AntigravityQuotaState = {
+        ...quota,
+        groups: [
+          {
+            ...quota.groups[0],
+            buckets: [
+              { ...quota.groups[0].buckets[0], remainingFraction: 0.8047521 },
+            ],
+          },
+        ],
+      };
+      const markup = renderToStaticMarkup(createElement(AntigravityQuotaBody, { quota: consumedQuota, classes }));
+      expect(markup).toContain('剩余 80%');
+    } finally {
+      await i18n.changeLanguage('en');
+    }
+  });
+
+  test('prevents forging 100% or false available when weekly limit is exhausted', async () => {
+    await i18n.changeLanguage('zh-CN');
+    try {
+      const blockedQuota: AntigravityQuotaState = {
+        ...quota,
+        groups: [
+          {
+            ...quota.groups[0],
+            buckets: [
+              { ...quota.groups[0].buckets[0], remainingFraction: 1 },
+              { ...quota.groups[0].buckets[1], remainingFraction: 0 },
+            ],
+          },
+        ],
+      };
+      const markup = renderToStaticMarkup(
+        createElement(AntigravityQuotaBody, { quota: blockedQuota, classes })
+      );
+      expect(markup).toContain('剩余 0%');
+      expect(markup).not.toContain('额度可用');
+      expect(markup).not.toContain('剩余 100%');
+    } finally {
+      await i18n.changeLanguage('en');
+    }
+  });
+});
+
