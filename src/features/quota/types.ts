@@ -46,6 +46,20 @@ export interface QuotaClassMap {
   quotaBarFillHigh: string;
   quotaBarFillMedium: string;
   quotaBarFillLow: string;
+  // 插件额度（Plugin/CodeMaker 卡片）
+  pluginQuotaHero: string;
+  pluginQuotaHeroHead: string;
+  pluginQuotaHeroLabel: string;
+  pluginQuotaHeroValue: string;
+  pluginQuotaOverLimit: string;
+  pluginQuotaBreakdown: string;
+  pluginQuotaProgressLabel: string;
+  pluginQuotaMetricNote: string;
+  pluginQuotaMetrics: string;
+  pluginQuotaDetails: string;
+  pluginQuotaRequestMetric: string;
+  pluginQuotaRequestBar: string;
+  pluginQuotaRequestRateHidden: string;
 }
 
 export const QUOTA_CLASS_KEYS: readonly (keyof QuotaClassMap)[] = [
@@ -81,6 +95,19 @@ export const QUOTA_CLASS_KEYS: readonly (keyof QuotaClassMap)[] = [
   'quotaBarFillHigh',
   'quotaBarFillMedium',
   'quotaBarFillLow',
+  'pluginQuotaHero',
+  'pluginQuotaHeroHead',
+  'pluginQuotaHeroLabel',
+  'pluginQuotaHeroValue',
+  'pluginQuotaOverLimit',
+  'pluginQuotaBreakdown',
+  'pluginQuotaProgressLabel',
+  'pluginQuotaMetricNote',
+  'pluginQuotaMetrics',
+  'pluginQuotaDetails',
+  'pluginQuotaRequestMetric',
+  'pluginQuotaRequestBar',
+  'pluginQuotaRequestRateHidden',
 ];
 
 /** 宿主 CSS Module → 类型化契约。缺键即抛（fail-loud），`source` 用于报错定位。 */
@@ -99,4 +126,5 @@ export function bindQuotaClasses(module: Record<string, string>, source: string)
 export interface QuotaBodyProps<TState> {
   quota: TState;
   classes: QuotaClassMap;
+  requestSummary?: unknown;
 }

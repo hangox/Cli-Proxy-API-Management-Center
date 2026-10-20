@@ -445,4 +445,49 @@ describe('generic plugin quota', () => {
       expect(messages.plugin_resource.compact_confirm_message).toBeTruthy();
     }
   });
+
+  test('renders CodeMaker quota card on native quota page with hero, breakdown, progress, and details without requestSummary or cardStyles', async () => {
+    const previousLanguage = i18n.language;
+    try {
+      await i18n.changeLanguage('zh-CN');
+      const codeMakerQuota = makeCardQuota([
+        makeMetric('monthly_quota', 'Monthly Quota', 3000),
+        makeMetric('usage_cost', 'Used This Month', 2350.04),
+        makeMetric('remaining', 'Remaining', 649.96),
+        makeMetric('today_cost', 'Today Cost', 6.95),
+        makeMetric('week_cost', 'Last 7 Days Cost', 876.57),
+        makeMetric('last_month_cost', 'Last Month', 3072.09),
+        makeMetric('rate_models_active', 'Active Models', 2, 'count'),
+        makeMetric('reset_day', 'Reset Day', 1, 'day'),
+        makeMetric('costly_usage', 'Costly Usage', 0),
+      ]);
+
+      // renderQuota calls createElement(PluginQuotaBody, { quota, classes }) with NO cardStyles and NO requestSummary
+      const markup = renderQuota(codeMakerQuota);
+
+      expect(markup).toContain('class="pluginQuotaHero"');
+      expect(markup).toContain('class="pluginQuotaHeroValue"');
+      expect(markup).toContain('本月剩余');
+      expect(markup).toContain('本月已用');
+      expect(markup).toContain('月限额');
+      expect(markup).toContain('今日费用');
+      expect(markup).toContain('近 7 日费用');
+      expect(markup).toContain('上月费用');
+      expect(markup).toContain('额度与账户明细');
+      expect(markup).toContain('CodeMaker');
+      expect(markup).toContain('<progress');
+      expect(markup).toContain('21.7%');
+      expect(markup).toContain('<details');
+
+      // Request metrics must NOT be rendered when requestSummary is omitted
+      expect(markup).not.toContain('class="pluginQuotaRequestMetric"');
+      expect(markup).not.toContain('class="pluginQuotaRequestBar"');
+
+      // Must not retreat to the old unlocalized flat codexPlan fallback
+      expect(markup).not.toContain('Monthly Quota');
+      expect(markup).not.toContain('Used This Month');
+    } finally {
+      await i18n.changeLanguage(previousLanguage);
+    }
+  });
 });

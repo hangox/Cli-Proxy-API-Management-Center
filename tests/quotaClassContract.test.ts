@@ -20,7 +20,32 @@ const HOSTS = {
   'AuthFileQuota.module.scss': 'src/features/authFiles/components/AuthFileQuota.module.scss',
 } as const;
 
-const readHost = (path: string) => Bun.file(new URL(`../${path}`, import.meta.url)).text();
+const readHost = async (path: string): Promise<string> => {
+  const content = await Bun.file(new URL(`../${path}`, import.meta.url)).text();
+  const dir = path.slice(0, path.lastIndexOf('/'));
+  let resolved = content;
+  for (const match of content.matchAll(/@use\s+['"]([^'"]+)['"]/g)) {
+    const importTarget = match[1];
+    if (importTarget.startsWith('.')) {
+      const lastSlash = importTarget.lastIndexOf('/');
+      const prefix = lastSlash === -1 ? '' : importTarget.slice(0, lastSlash + 1);
+      const name = lastSlash === -1 ? importTarget : importTarget.slice(lastSlash + 1);
+      const candidates = [
+        `${dir}/${prefix}_${name}.scss`,
+        `${dir}/${prefix}${name}.scss`,
+        `${dir}/${prefix}${name}.module.scss`,
+      ];
+      for (const candidate of candidates) {
+        const file = Bun.file(new URL(`../${candidate}`, import.meta.url));
+        if (await file.exists()) {
+          resolved += '\n' + (await file.text());
+          break;
+        }
+      }
+    }
+  }
+  return resolved;
+};
 
 describe('quota class contract', () => {
   for (const [host, path] of Object.entries(HOSTS)) {

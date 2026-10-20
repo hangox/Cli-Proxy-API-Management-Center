@@ -1,4 +1,5 @@
 @use '../../../styles/mixins' as *;
+@use './pluginQuotaShared' as *;
 
 /* ============================================================
  * 额度卡片 body 的全页外衣（类型化契约见 features/quota/types.ts）。
@@ -189,6 +190,10 @@
     animation: none;
   }
 }
+
+/* ---------- 插件额度（Plugin/CodeMaker 卡片） ---------- */
+
+@include pluginQuotaSharedStyles;
 
 /* ============================================================
  * 以下至文件末尾：套餐徽章定稿区块（逐字节搬迁，禁止改动）

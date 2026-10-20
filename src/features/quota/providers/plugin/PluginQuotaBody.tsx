@@ -120,7 +120,7 @@ export function PluginQuotaRequestMetric({
   cardStyles,
 }: {
   requestSummary: PluginQuotaCardRequestSummary;
-  cardStyles: Record<string, string>;
+  cardStyles: Record<string, string> | QuotaClassMap;
 }) {
   const { t, i18n } = useTranslation();
   const { counts, statusData, statusBarStyles } = requestSummary;
@@ -170,10 +170,11 @@ function PluginQuotaCard({
   cardStyles,
   requestSummary,
 }: QuotaBodyProps<PluginQuotaState> & {
-  cardStyles: Record<string, string>;
-  requestSummary: PluginQuotaCardRequestSummary;
+  cardStyles?: Record<string, string>;
+  requestSummary?: PluginQuotaCardRequestSummary;
 }) {
   const { t, i18n } = useTranslation();
+  const styles = cardStyles ? { ...classes, ...cardStyles } : classes;
   const metric = (key: string) => quota.summary.find((item) => item.key === key);
   const limit = metric('monthly_quota');
   const used = metric('usage_cost');
@@ -231,26 +232,26 @@ function PluginQuotaCard({
       )}
       {hasHero && amount && remainingValue !== null && (
         <section
-          className={cardStyles.pluginQuotaHero}
+          className={styles.pluginQuotaHero}
           aria-label={t('plugin_quota.remaining_this_month')}
         >
-          <div className={cardStyles.pluginQuotaHeroHead}>
+          <div className={styles.pluginQuotaHeroHead}>
             <div>
-              <div className={cardStyles.pluginQuotaHeroLabel}>
+              <div className={styles.pluginQuotaHeroLabel}>
                 {t('plugin_quota.remaining_this_month')}
               </div>
-              <div className={cardStyles.pluginQuotaHeroValue}>
+              <div className={styles.pluginQuotaHeroValue}>
                 {formatMetric({ ...amount, value: remainingValue }, i18n.language, t)}
               </div>
             </div>
             {overLimit && (
-              <span className={cardStyles.pluginQuotaOverLimit} role="status">
+              <span className={styles.pluginQuotaOverLimit} role="status">
                 {t('plugin_quota.over_limit')}
               </span>
             )}
           </div>
           {(used || limit) && (
-            <div className={cardStyles.pluginQuotaBreakdown}>
+            <div className={styles.pluginQuotaBreakdown}>
               {used && (
                 <span>
                   {t('plugin_quota.used_this_month')} {formatMetric(used, i18n.language, t)}
@@ -265,7 +266,7 @@ function PluginQuotaCard({
           )}
           {percentRemaining !== null && (
             <>
-              <div className={cardStyles.pluginQuotaProgressLabel}>
+              <div className={styles.pluginQuotaProgressLabel}>
                 <span>{t('plugin_quota.remaining_this_month')}</span>
                 <span>{remainingLabel}</span>
               </div>
@@ -278,7 +279,7 @@ function PluginQuotaCard({
             </>
           )}
           {limit?.value === 0 && (
-            <div className={cardStyles.pluginQuotaMetricNote}>
+            <div className={styles.pluginQuotaMetricNote}>
               {t('plugin_quota.progress_unavailable')}
             </div>
           )}
@@ -292,23 +293,25 @@ function PluginQuotaCard({
       )}
       {!hasData && <div className={classes.quotaMessage}>{t('plugin_quota.empty_data')}</div>}
       {partialCost && (
-        <div className={cardStyles.pluginQuotaMetricNote} role="status">
+        <div className={styles.pluginQuotaMetricNote} role="status">
           {t('plugin_quota.cost_partial')}
         </div>
       )}
       {(summary.length > 0 || requestSummary) && (
-        <dl className={cardStyles.pluginQuotaMetrics}>
+        <dl className={styles.pluginQuotaMetrics}>
           {summary.map((item) => (
             <div key={item.key}>
               <dt>{label(item)}</dt>
               <dd>{formatMetric(item, i18n.language, t)}</dd>
             </div>
           ))}
-          <PluginQuotaRequestMetric requestSummary={requestSummary} cardStyles={cardStyles} />
+          {requestSummary && (
+            <PluginQuotaRequestMetric requestSummary={requestSummary} cardStyles={styles} />
+          )}
         </dl>
       )}
       {(details.length > 0 || quota.groups.length > 0) && (
-        <details className={cardStyles.pluginQuotaDetails}>
+        <details className={styles.pluginQuotaDetails}>
           <summary>{t('plugin_quota.details')}</summary>
           {details.length > 0 && (
             <dl>
@@ -344,7 +347,23 @@ export function PluginQuotaBody({
   const { t, i18n } = useTranslation();
   const plan =
     quota.subscription?.tierName || quota.subscription?.plan || quota.subscription?.tierId;
-  if (cardStyles && requestSummary)
+  const metric = (key: string) => quota.summary.find((item) => item.key === key);
+  const limit = metric('monthly_quota');
+  const used = metric('usage_cost');
+  const remaining = metric('remaining');
+  const monthlyBucket = quota.groups
+    .flatMap((group) => group.buckets)
+    .find((item) => item.window === 'monthly');
+  const hasHero = Boolean((limit || monthlyBucket) && (remaining || (limit && used)));
+  const hasCardPresentation = Boolean(
+    hasHero ||
+    quota.summary.some((item) =>
+      ['monthly_quota', 'usage_cost', 'remaining', 'today_cost', 'week_cost', 'last_month_cost'].includes(item.key)
+    ) ||
+    cardStyles ||
+    requestSummary
+  );
+  if (hasCardPresentation) {
     return (
       <PluginQuotaCard
         quota={quota}
@@ -353,6 +372,7 @@ export function PluginQuotaBody({
         requestSummary={requestSummary}
       />
     );
+  }
   return (
     <>
       {(plan || quota.summary.length > 0) && (

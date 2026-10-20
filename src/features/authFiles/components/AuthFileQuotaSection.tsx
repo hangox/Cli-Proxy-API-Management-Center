@@ -211,7 +211,7 @@ export function AuthFileQuotaSection(props: AuthFileQuotaSectionProps) {
           })}
         </div>
       ) : quota ? (
-        quotaType === 'plugin' && requestSummary ? (
+        quotaType === 'plugin' ? (
           <PluginQuotaBody
             quota={quota as PluginQuotaState}
             classes={compactQuotaClasses}
