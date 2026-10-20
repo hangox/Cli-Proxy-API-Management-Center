@@ -4,10 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { useRevealGroup } from '@/hooks/motion';
 import { useAuthStore, useThemeStore } from '@/stores';
 import iconVertex from '@/assets/icons/vertex.svg';
+import iconCodex from '@/assets/icons/codex.svg';
 import { OAuthHeader } from './components/OAuthHeader';
 import { ProviderTile } from './components/ProviderTile';
 import { OAuthFlowDialog, type DialogHeading } from './components/OAuthFlowDialog';
 import { VertexImportDialog } from './components/VertexImportDialog';
+import { SiwcBindDialog } from './components/SiwcBindDialog';
 import {
   useOAuthFlows,
   usePluginOAuthProviders,
@@ -53,6 +55,13 @@ export function OAuthPage() {
   const focusedRef = useRef<string | null>(null);
   const [dialog, setDialog] = useState<DialogTarget | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [siwcOpen, setSiwcOpen] = useState(false);
+  // 每次打开换新 key 重新挂载（全新选择与会话）；关闭后保持挂载，让退出动画走完
+  const [siwcKey, setSiwcKey] = useState(0);
+  const openSiwc = () => {
+    setSiwcKey((key) => key + 1);
+    setSiwcOpen(true);
+  };
 
   const flows = useOAuthFlows({
     providerCards,
@@ -179,6 +188,13 @@ export function OAuthPage() {
             index={providerCount}
             onOpen={openVertex}
           />
+          <ProviderTile
+            label={t('siwc.bind')}
+            caption={t('siwc.tile_caption')}
+            icon={iconCodex}
+            index={providerCount + 1}
+            onOpen={openSiwc}
+          />
         </div>
       </section>
 
@@ -216,6 +232,15 @@ export function OAuthPage() {
         onViewAuthFiles={viewAuthFiles}
         onClose={closeDialog}
       />
+
+      {siwcKey > 0 && (
+        <SiwcBindDialog
+          key={siwcKey}
+          open={siwcOpen}
+          onClose={() => setSiwcOpen(false)}
+          onViewAuthFiles={viewAuthFiles}
+        />
+      )}
     </div>
   );
 }
