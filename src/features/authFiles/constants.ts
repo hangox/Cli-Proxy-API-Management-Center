@@ -1,7 +1,9 @@
 import type { TFunction } from 'i18next';
 import iconAntigravity from '@/assets/icons/antigravity.svg';
 import iconClaude from '@/assets/icons/claude.svg';
+import iconCodeMakerHub from '@/assets/icons/codemaker-hub.png';
 import iconCodex from '@/assets/icons/codex.svg';
+import iconDeepseek from '@/assets/icons/deepseek.svg';
 import iconMeta from '@/assets/icons/meta.svg';
 import iconDevin from '@/assets/icons/devin.svg';
 import iconDevinDark from '@/assets/icons/devin-dark.svg';
@@ -88,7 +90,13 @@ export const AUTH_FILE_ICONS: Record<string, AuthFileIconAsset> = {
   antigravity: iconAntigravity,
   aistudio: iconGemini,
   claude: iconClaude,
+  // CMH / CodeMaker：插件 Provider 常量为 cmh，direct 模式引用名为 codemaker，
+  // 下划线写法经归一化后为 codemaker-hub，三别名共用同一图标
+  cmh: iconCodeMakerHub,
+  codemaker: iconCodeMakerHub,
+  'codemaker-hub': iconCodeMakerHub,
   codex: iconCodex,
+  deepseek: iconDeepseek,
   meta: iconMeta,
   devin: { light: iconDevin, dark: iconDevinDark },
   gemini: iconGemini,
