@@ -963,6 +963,8 @@
     "meta_added": "{{count}} added this session",
     "step_open_auth_page": "Open the sign-in page and authorize",
     "step_enter_device_code": "Enter this code on the sign-in page",
+    "oauth_auto_detect_label": "Automatic detection",
+    "oauth_auto_detect_hint": "Complete sign-in on the page that opened. This window detects the result automatically, no further action needed.",
     "optional_step": "Optional",
     "generating_link": "Generating sign-in link…",
     "waiting_background_hint": "Closing this window won't stop sign-in",

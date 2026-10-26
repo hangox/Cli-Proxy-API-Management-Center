@@ -15,6 +15,7 @@ import {
 } from './hooks/useOAuthFlows';
 import { useVertexImport } from './hooks/useVertexImport';
 import {
+  isAutoDetectPluginProvider,
   isSponsor,
   OAUTH_PROVIDERS,
   resolveThemedIcon,
@@ -189,6 +190,7 @@ export function OAuthPage() {
           state={flows.states[dialogCard.id] ?? {}}
           text={(suffix) => flows.providerText(dialogCard.id, suffix)}
           supportsCallback={supportsManualCallback(dialogCard)}
+          autoDetect={isAutoDetectPluginProvider(dialogCard)}
           sponsor={sponsorOf(dialogCard)}
           onStart={() => void flows.startAuth(dialogCard.id)}
           onCancel={() => void flows.cancelAuth(dialogCard.id)}

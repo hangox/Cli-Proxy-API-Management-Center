@@ -120,7 +120,7 @@ export const OAUTH_PROVIDERS: BuiltInOAuthProviderCard[] = [
 
 const BUILTIN_PROVIDER_IDS = new Set<string>(OAUTH_PROVIDERS.map((provider) => provider.id));
 
-/** 后端接受手动回调提交的内置提供商；插件提供商一律允许。 */
+/** 后端接受手动回调提交的内置提供商。 */
 export const CALLBACK_SUPPORTED = new Set<string>([
   'codex',
   'anthropic',
@@ -129,8 +129,20 @@ export const CALLBACK_SUPPORTED = new Set<string>([
   'devin',
 ]);
 
+/**
+ * 登录在外部页面完成、弹窗自动轮询结果、无需手动回调的插件提供商（CodeMaker = cmh）。
+ * 未列入的插件提供商仍允许手动回调。
+ */
+export const PLUGIN_PROVIDERS_WITHOUT_CALLBACK = new Set<string>(['cmh']);
+
 export const supportsManualCallback = (provider: OAuthProviderCard): boolean =>
-  provider.kind === 'plugin' || CALLBACK_SUPPORTED.has(provider.id);
+  provider.kind === 'plugin'
+    ? !PLUGIN_PROVIDERS_WITHOUT_CALLBACK.has(provider.id)
+    : CALLBACK_SUPPORTED.has(provider.id);
+
+/** 名单内的插件提供商：第 2 步显示「自动检测」说明，而不是回调输入框。内置提供商永远为 false。 */
+export const isAutoDetectPluginProvider = (provider: OAuthProviderCard): boolean =>
+  provider.kind === 'plugin' && PLUGIN_PROVIDERS_WITHOUT_CALLBACK.has(provider.id);
 
 export const isSponsor = (
   provider: OAuthProviderCard

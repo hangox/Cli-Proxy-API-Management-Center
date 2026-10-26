@@ -988,6 +988,8 @@
     "meta_added": "本次新增 {{count}} 個憑證",
     "step_open_auth_page": "開啟授權頁並完成登入",
     "step_enter_device_code": "在授權頁輸入裝置碼",
+    "oauth_auto_detect_label": "自動偵測",
+    "oauth_auto_detect_hint": "在開啟的頁面完成登入後，此視窗會自動偵測登入結果，無需其他操作。",
     "optional_step": "選填",
     "generating_link": "正在產生授權連結…",
     "waiting_background_hint": "關閉視窗不會中斷授權",

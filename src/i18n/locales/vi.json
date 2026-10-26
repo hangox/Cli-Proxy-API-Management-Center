@@ -881,6 +881,8 @@
     "meta_added": "Đã thêm {{count}} trong phiên này",
     "step_open_auth_page": "Mở trang đăng nhập và cấp quyền",
     "step_enter_device_code": "Nhập mã này trên trang đăng nhập",
+    "oauth_auto_detect_label": "Tự động nhận diện",
+    "oauth_auto_detect_hint": "Hoàn tất đăng nhập trên trang đã mở. Cửa sổ này sẽ tự động nhận diện kết quả, không cần thao tác thêm.",
     "optional_step": "Tùy chọn",
     "generating_link": "Đang tạo liên kết đăng nhập…",
     "waiting_background_hint": "Đóng cửa sổ không làm gián đoạn đăng nhập",

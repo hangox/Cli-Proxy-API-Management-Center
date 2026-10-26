@@ -36,6 +36,8 @@ export interface OAuthFlowDialogProps {
   /** 提供商专属文案：`auth_login.<id>_<suffix>` 或插件模板。 */
   text: (suffix: string) => string;
   supportsCallback: boolean;
+  /** 无回调但由弹窗自动轮询结果的插件提供商：第 2 步显示自动检测说明（见 isAutoDetectPluginProvider）。 */
+  autoDetect?: boolean;
   /** 赞助商：品牌蓝主按钮 + 提示行里的注册链接。 */
   sponsor?: { url: string; label: string };
   onStart: () => void;
@@ -142,7 +144,11 @@ function FlowBody(props: OAuthFlowDialogProps & { view: Exclude<FlowView, 'succe
             </div>
           </Step>
         )}
-        {props.supportsCallback && <CallbackStep {...props} />}
+        {props.supportsCallback ? (
+          <CallbackStep {...props} />
+        ) : props.autoDetect ? (
+          <AutoDetectStep />
+        ) : null}
       </ol>
     </div>
   );
@@ -295,6 +301,16 @@ function CallbackStep({
           {feedback.message}
         </p>
       )}
+    </Step>
+  );
+}
+
+/** 名单内插件的 SSO 流程由弹窗轮询结果，此步只说明无需操作，不渲染回调输入框。 */
+function AutoDetectStep() {
+  const { t } = useTranslation();
+  return (
+    <Step title={t('auth_login.oauth_auto_detect_label')}>
+      <p className={styles.stepHint}>{t('auth_login.oauth_auto_detect_hint')}</p>
     </Step>
   );
 }

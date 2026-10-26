@@ -962,6 +962,8 @@
     "meta_added": "本次新增 {{count}} 个凭证",
     "step_open_auth_page": "打开授权页并完成登录",
     "step_enter_device_code": "在授权页输入设备码",
+    "oauth_auto_detect_label": "自动检测",
+    "oauth_auto_detect_hint": "在打开的页面完成登录后，此窗口会自动检测登录结果，无需其他操作。",
     "optional_step": "可选",
     "generating_link": "正在生成授权链接…",
     "waiting_background_hint": "关闭窗口不会中断授权",
