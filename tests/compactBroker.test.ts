@@ -1,9 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 import {
+  ADVISOR_PANEL_PATH,
   COMPACT_CONFIG_WIRE_PATH,
   COMPACT_PANEL_PATH,
-  installCompactBroker,
-  isTrustedCompactResource,
+  installPluginBroker,
+  isTrustedPluginResource,
   parseCompactRequest,
   type CompactBrokerDependencies,
   type CompactRequest,
@@ -44,12 +45,13 @@ function fixture(overrides: Partial<CompactBrokerDependencies> = {}) {
   const requests: { request: CompactRequest; revision: number; signal: AbortSignal }[] = [];
   const channels: { port1: Port; port2: Port }[] = [];
   const ready: { value: unknown; origin: string; ports: Transferable[] }[] = [];
+  const iframeSrc = overrides.iframeSrc ?? panel;
   const child = {
-    location: { href: panel + '#config' },
+    location: { href: iframeSrc + (iframeSrc === panel ? '#config' : '#view=stats') },
     postMessage: (value: unknown, targetOrigin: string, ports: Transferable[]) =>
       ready.push({ value, origin: targetOrigin, ports }),
   };
-  const frame = { src: panel, contentWindow: child, contentDocument: {} };
+  const frame = { src: iframeSrc, contentWindow: child, contentDocument: {} };
   const host = {
     addEventListener: (_type: string, listener: EventListener) => {
       message = listener as unknown as (event: MessageEvent<unknown>) => void;
@@ -100,7 +102,7 @@ function fixture(overrides: Partial<CompactBrokerDependencies> = {}) {
     },
     ...overrides,
   };
-  const cleanup = installCompactBroker(deps);
+  const cleanup = installPluginBroker(deps);
   return {
     frame,
     child,
@@ -138,9 +140,68 @@ const wire = (id: number, method = 'GET', path = COMPACT_CONFIG_WIRE_PATH, extra
   ...extras,
 });
 
+describe('Advisor 宿主授权', () => {
+  const advisorPanel = origin + ADVISOR_PANEL_PATH;
+  const prefix = '/v0/management/plugins/advisor/';
+  const advisorFixture = () => fixture({ pluginID: 'advisor', iframeSrc: advisorPanel });
+
+  test('只允许同源 Advisor 页面使用 Advisor 的四个只读接口', async () => {
+    const f = advisorFixture();
+    f.hello();
+    const port = f.channels[0].port1;
+    const routes = [
+      ['sessions', { cursor: 'c29tZQ' }],
+      ['consultations', { session_id: 'a + b' }],
+      ['consultation', { id: 'test-id' }],
+      ['statistics', { period: '7d' }],
+    ] as const;
+    routes.forEach(([route, query], index) => {
+      port.send(wire(index + 1, 'GET', prefix + route, { query }));
+    });
+    await drain();
+    expect(f.requests.map(({ request }) => [request.method, request.url, request.query])).toEqual(
+      routes.map(([route, query]) => ['GET', origin + prefix + route, query])
+    );
+    expect(f.confirmCalls()).toBe(0);
+    f.logout();
+    expect(port.sent.at(-1)).toEqual({ type: 'closed' });
+    expect(port.closed).toBe(true);
+  });
+
+  test('拒绝跨插件调用、写入及未允许的参数', async () => {
+    const advisor = advisorFixture();
+    advisor.hello();
+    const port = advisor.channels[0].port1;
+    for (const request of [
+      wire(1),
+      wire(2, 'PUT', prefix + 'sessions', { body: {} }),
+      wire(3, 'GET', prefix + 'sessions', { headers: {} }),
+      wire(4, 'GET', prefix + 'sessions', { query: { id: 'test-id' } }),
+      wire(5, 'GET', prefix + 'status'),
+      wire(6, 'GET', prefix + 'statistics?period=7d'),
+    ])
+      port.send(request);
+    expect(port.sent).toHaveLength(6);
+    expect(advisor.requests).toEqual([]);
+
+    const compact = fixture();
+    compact.hello();
+    compact.channels[0].port1.send(wire(1, 'GET', prefix + 'sessions'));
+    await drain();
+    expect(compact.requests).toEqual([]);
+
+    expect(isTrustedPluginResource('advisor', panel, origin, origin)).toBe(false);
+    expect(isTrustedPluginResource('advisor', advisorPanel, 'https://else.example', origin)).toBe(
+      false
+    );
+    advisor.cleanup();
+    compact.cleanup();
+  });
+});
+
 describe('Compact 固定资源与请求白名单', () => {
   test('只接同源精确内置资源，其他插件/路径/跨源/凭据URL拒绝', () => {
-    expect(isTrustedCompactResource('claude-compact', panel, origin, origin)).toBe(true);
+    expect(isTrustedPluginResource('claude-compact', panel, origin, origin)).toBe(true);
     for (const args of [
       ['other', panel, origin],
       ['claude-compact', panel + '?x=1', origin],
@@ -149,7 +210,7 @@ describe('Compact 固定资源与请求白名单', () => {
       ['claude-compact', panel, 'https://user:pass@panel.example'],
       ['claude-compact', panel, origin + '/gateway'],
     ])
-      expect(isTrustedCompactResource(args[0], args[1], args[2], origin)).toBe(false);
+      expect(isTrustedPluginResource(args[0], args[1], args[2], origin)).toBe(false);
   });
   test('config 显式映射 v8，status/events 仅固定本源 custom URL', () => {
     expect(parseCompactRequest(wire(1), origin)?.url).toBe(

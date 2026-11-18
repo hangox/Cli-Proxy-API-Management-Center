@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef, type RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import { apiClient } from '@/services/api/client';
 import { useAuthStore, useNotificationStore, useThemeStore } from '@/stores';
-import { installCompactBroker, type CompactTheme } from './compactBroker';
+import { installPluginBroker, type CompactTheme } from './compactBroker';
 import { createCompactConfirmation } from './compactConfirmation';
 
 export function resolveCompactTheme(theme: string, resolved: string): CompactTheme {
@@ -26,7 +26,7 @@ export function useCompactBroker(
     const confirmation = createCompactConfirmation(useNotificationStore, (key) =>
       translate.current(key)
     );
-    return installCompactBroker({
+    return installPluginBroker({
       host: window,
       origin: window.location.origin,
       pluginID,

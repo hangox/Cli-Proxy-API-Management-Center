@@ -1,5 +1,6 @@
-// 仅为同源内置 Compact 页面提供代发通道；凭据始终由父侧 API client 持有。
+// 仅为列出的同源插件页面代发请求；凭据由父侧 API client 持有。
 export const COMPACT_PANEL_PATH = '/v0/resource/plugins/claude-compact/panel';
+export const ADVISOR_PANEL_PATH = '/v0/resource/plugins/advisor/index.html';
 export const COMPACT_CONFIG_WIRE_PATH = '/v0/management/plugins/claude-compact/config';
 const CONFIG_PATH = '/config/plugins/configs/claude-compact';
 const STATUS_PATH = '/v0/management/claude-compact/status';
@@ -13,7 +14,7 @@ export interface CompactRequest {
   method: 'GET' | 'PUT';
   url: string;
   body?: Record<string, unknown>;
-  query?: Record<string, number>;
+  query?: Record<string, number | string>;
 }
 export interface CompactBrokerDependencies {
   host: Pick<Window, 'addEventListener' | 'removeEventListener'>;
@@ -35,17 +36,18 @@ export interface CompactBrokerDependencies {
 const record = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === 'object' && !Array.isArray(value);
 
-export function isTrustedCompactResource(
+export function isTrustedPluginResource(
   pluginID: string,
   iframeSrc: string,
   apiBase: string,
   origin: string
 ): boolean {
+  const panelPath = trustedPanelPath(pluginID);
+  if (!panelPath) return false;
   try {
     const api = new URL(apiBase);
     return (
-      pluginID === 'claude-compact' &&
-      iframeSrc === new URL(COMPACT_PANEL_PATH, origin).href &&
+      iframeSrc === new URL(panelPath, origin).href &&
       api.origin === origin &&
       api.pathname === '/' &&
       !api.search &&
@@ -56,6 +58,43 @@ export function isTrustedCompactResource(
   } catch {
     return false;
   }
+}
+
+function trustedPanelPath(pluginID: string): string | undefined {
+  if (pluginID === 'claude-compact') return COMPACT_PANEL_PATH;
+  if (pluginID === 'advisor') return ADVISOR_PANEL_PATH;
+}
+
+const advisorPrefix = '/v0/management/plugins/advisor/';
+const advisorQueries: ReadonlyMap<string, readonly string[]> = new Map([
+  [advisorPrefix + 'sessions', ['cursor']],
+  [advisorPrefix + 'consultations', ['cursor', 'session_id', 'unassociated']],
+  [advisorPrefix + 'consultation', ['id']],
+  [advisorPrefix + 'statistics', ['period']],
+]);
+
+function parseAdvisorRequest(
+  value: Record<string, unknown>,
+  origin: string
+): CompactRequest | null {
+  const { id, method, path, query } = value;
+  if (
+    method !== 'GET' ||
+    typeof path !== 'string' ||
+    Object.keys(value).some((key) => !['id', 'method', 'path', 'query'].includes(key)) ||
+    (query !== undefined && !record(query))
+  )
+    return null;
+  const keys = advisorQueries.get(path);
+  if (!keys) return null;
+  const parsed: Record<string, string> = {};
+  for (const [key, raw] of Object.entries(query ?? {})) {
+    if (!keys.includes(key) || typeof raw !== 'string') return null;
+    if (key === 'unassociated' && raw !== 'true') return null;
+    if (key === 'period' && !['24h', '7d', '30d'].includes(raw)) return null;
+    parsed[key] = raw;
+  }
+  return { id: Number(id), method, url: new URL(path, origin).href, query: parsed };
 }
 
 // 子页旧 wire 名只映射到这三个已确认端点，不接受 URL、headers 或任意 query 透传。
@@ -119,9 +158,11 @@ export function parseCompactRequest(value: unknown, origin: string): CompactRequ
   }
 }
 
-export function installCompactBroker(deps: CompactBrokerDependencies): () => void {
-  if (!isTrustedCompactResource(deps.pluginID, deps.iframeSrc, deps.apiBase, deps.origin))
+export function installPluginBroker(deps: CompactBrokerDependencies): () => void {
+  if (!isTrustedPluginResource(deps.pluginID, deps.iframeSrc, deps.apiBase, deps.origin))
     return () => {};
+  const panelPath = trustedPanelPath(deps.pluginID);
+  const isAdvisor = panelPath === ADVISOR_PANEL_PATH;
   const revision = deps.getRevision();
   let disposed = false;
   let port: MessagePort | null = null;
@@ -140,9 +181,9 @@ export function installCompactBroker(deps: CompactBrokerDependencies): () => voi
       const actual = new URL(frame.contentWindow.location.href);
       if (
         actual.origin !== deps.origin ||
-        actual.pathname !== COMPACT_PANEL_PATH ||
+        actual.pathname !== panelPath ||
         actual.search ||
-        !['', '#config', '#status', '#events'].includes(actual.hash)
+        (!isAdvisor && !['', '#config', '#status', '#events'].includes(actual.hash))
       )
         return null;
       return frame;
@@ -210,7 +251,9 @@ export function installCompactBroker(deps: CompactBrokerDependencies): () => voi
     // pending 重放也直接忽略，不能先用同 ID busy 结束子页 promise，再继续原写操作。
     if (id <= highestID) return;
     highestID = id;
-    const request = parseCompactRequest(event.data, deps.origin);
+    const request = isAdvisor
+      ? parseAdvisorRequest(event.data, deps.origin)
+      : parseCompactRequest(event.data, deps.origin);
     if (!request) {
       if (record(event.data) && Number.isSafeInteger(event.data.id))
         reply(Number(event.data.id), { ok: false, error: 'invalid_request' });
@@ -241,13 +284,14 @@ export function installCompactBroker(deps: CompactBrokerDependencies): () => voi
       const data = await deps.request(request, revision, controller.signal);
       reply(request.id, { ok: true, data }, requestGeneration);
     } catch (error: unknown) {
-      const unauthorized = record(error) && error.status === 401;
+      const status = record(error) && typeof error.status === 'number' ? error.status : undefined;
+      const unauthorized = status === 401 || (isAdvisor && status === 403);
       reply(
         request.id,
         {
           ok: false,
           error: unauthorized ? 'auth_required' : 'request_failed',
-          ...(unauthorized ? { status: 401 } : {}),
+          ...(unauthorized || isAdvisor ? { status } : {}),
         },
         requestGeneration
       );
@@ -276,7 +320,7 @@ export function installCompactBroker(deps: CompactBrokerDependencies): () => voi
     const channel = deps.createChannel();
     port = channel.port1;
     port.onmessage = (message) => {
-      void receive(message);
+      if (port === channel.port1) void receive(message);
     };
     port.start();
     frame.contentWindow!.postMessage(
